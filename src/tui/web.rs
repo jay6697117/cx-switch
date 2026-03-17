@@ -22,7 +22,7 @@ pub fn run_web_dashboard(
     auto_switch: bool,
     port: u16,
 ) -> anyhow::Result<()> {
-    let addr = format!("0.0.0.0:{}", port);
+    let addr = format!("127.0.0.1:{}", port);
     let server = Server::http(&addr)
         .map_err(|e| anyhow::anyhow!("无法启动 HTTP 服务器: {}", e))?;
 
@@ -42,7 +42,7 @@ pub fn run_web_dashboard(
     let bg_state = Arc::clone(&state);
     thread::spawn(move || {
         loop {
-            let st = bg_state.lock().unwrap();
+            let st = bg_state.lock().unwrap_or_else(|e| e.into_inner());
             let codex_home = st.codex_home.clone();
             let _threshold = st.threshold;
             let _auto_switch = st.auto_switch;
@@ -67,7 +67,7 @@ pub fn run_web_dashboard(
     // HTTP 请求处理循环
     for request in server.incoming_requests() {
         let url = request.url().to_string();
-        let st = state.lock().unwrap();
+        let st = state.lock().unwrap_or_else(|e| e.into_inner());
         let codex_home = st.codex_home.clone();
         let interval = st.interval;
         let threshold = st.threshold;
@@ -94,14 +94,8 @@ pub fn run_web_dashboard(
                     &b"application/json; charset=utf-8"[..],
                 )
                 .unwrap();
-                let cors = Header::from_bytes(
-                    &b"Access-Control-Allow-Origin"[..],
-                    &b"*"[..],
-                )
-                .unwrap();
                 let response = Response::from_string(json)
-                    .with_header(header)
-                    .with_header(cors);
+                    .with_header(header);
                 let _ = request.respond(response);
             }
             _ => {
@@ -527,6 +521,12 @@ body::before {{
 const INTERVAL = {interval} * 1000;
 const THRESHOLD = {threshold};
 
+function escapeHtml(str) {{
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}}
+
 function getColor(remaining) {{
   if (remaining <= 0) return 'red';
   if (remaining < THRESHOLD) return 'yellow';
@@ -573,10 +573,10 @@ function renderAccount(acc) {{
       <div class="card-header">
         <div class="email-section">
           <span class="active-icon">${{activeIcon}}</span>
-          <span class="email">${{acc.email}}</span>
+          <span class="email">${{escapeHtml(acc.email)}}</span>
         </div>
         <div class="badges">
-          <span class="badge badge-plan">${{acc.plan}}</span>
+          <span class="badge badge-plan">${{escapeHtml(acc.plan)}}</span>
           ${{activeBadge}}
         </div>
       </div>
@@ -594,7 +594,7 @@ async function refresh() {{
 
     if (data.error) {{
       document.getElementById('accounts').innerHTML =
-        `<div class="no-data"><div class="icon">❌</div><p>${{data.error}}</p></div>`;
+        `<div class="no-data"><div class="icon">❌</div><p>${{escapeHtml(data.error)}}</p></div>`;
       return;
     }}
 

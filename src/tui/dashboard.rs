@@ -383,22 +383,27 @@ fn render_rate_line(
     Ok(())
 }
 
-/// 邮箱简短显示
+/// 邮箱简短显示（UTF-8 安全截断）
 fn short_email(email: &str) -> &str {
-    if email.len() > 20 {
-        &email[..20]
-    } else {
+    if email.chars().count() <= 20 {
         email
+    } else {
+        match email.char_indices().nth(20) {
+            Some((idx, _)) => &email[..idx],
+            None => email,
+        }
     }
 }
 
+/// 字符串截断（UTF-8 安全）
 fn truncate_str(s: &str, max: usize) -> String {
-    if s.len() <= max {
+    if s.chars().count() <= max {
         s.to_string()
     } else if max <= 1 {
         ".".to_string()
     } else {
-        format!("{}.", &s[..max - 1])
+        let end = s.char_indices().nth(max - 1).map(|(i, _)| i).unwrap_or(s.len());
+        format!("{}.", &s[..end])
     }
 }
 

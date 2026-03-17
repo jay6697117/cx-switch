@@ -59,7 +59,7 @@ pub fn active_auth_path(codex_home: &Path) -> PathBuf {
     codex_home.join("auth.json")
 }
 
-/// 复制文件
+/// 复制文件（认证文件设置 0600 权限）
 pub fn copy_file(src: &Path, dest: &Path) -> Result<()> {
     fs::copy(src, dest).with_context(|| {
         format!(
@@ -68,7 +68,18 @@ pub fn copy_file(src: &Path, dest: &Path) -> Result<()> {
             dest.display()
         )
     })?;
+    set_file_permissions_private(dest);
     Ok(())
+}
+
+/// 设置文件为仅拥有者可读写（Unix: 0600）
+fn set_file_permissions_private(path: &Path) {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = fs::set_permissions(path, fs::Permissions::from_mode(0o600));
+    }
+    let _ = path; // suppress unused warning on non-unix
 }
 
 /// 获取当前 Unix 时间戳
@@ -257,6 +268,7 @@ pub fn save_registry(codex_home: &Path, reg: &mut Registry) -> Result<()> {
     let mut file = fs::File::create(&path)
         .with_context(|| format!("创建注册表文件失败: {}", path.display()))?;
     file.write_all(data.as_bytes())?;
+    set_file_permissions_private(&path);
 
     Ok(())
 }
