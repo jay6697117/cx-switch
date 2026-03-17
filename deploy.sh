@@ -57,12 +57,35 @@ if git rev-parse "${NEXT_TAG}" >/dev/null 2>&1; then
   exit 1
 fi
 
-# 创建并推送 tag
+# 同步版本号到 Cargo.toml
+CARGO_VERSION="${NEXT_TAG#v}"
+print_info "同步版本号 ${CARGO_VERSION} 到 Cargo.toml..."
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  # macOS 的 sed 需要 -i ''
+  sed -i '' "s/^version = \".*\"/version = \"${CARGO_VERSION}\"/" Cargo.toml
+else
+  sed -i "s/^version = \".*\"/version = \"${CARGO_VERSION}\"/" Cargo.toml
+fi
+
+# 同步 Cargo.lock
+cargo generate-lockfile 2>/dev/null || true
+
+# 提交版本号变更（仅在有实际变更时）
+git add Cargo.toml Cargo.lock
+if git diff --cached --quiet; then
+  print_info "版本号未变化，跳过 commit"
+else
+  git commit -m "chore: 发布 ${NEXT_TAG}，同步版本号到 ${CARGO_VERSION}"
+fi
+
+# 在最新 commit 上创建 tag 并推送
 git tag "${NEXT_TAG}"
-git push origin "${NEXT_TAG}"
+git push origin HEAD "${NEXT_TAG}"
 
 echo ""
 print_success "Tag ${NEXT_TAG} 已创建并推送！"
+print_info "Cargo.toml 版本号已同步为 ${CARGO_VERSION}"
 print_info "GitHub Actions 正在自动构建..."
 print_info "查看进度: https://github.com/jay6697117/cx-switch/actions"
 echo ""
