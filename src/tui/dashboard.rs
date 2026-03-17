@@ -68,6 +68,8 @@ pub fn run_dashboard(
         if let Ok(Some(snapshot)) = sessions::scan_latest_usage(codex_home) {
             if let Some(active) = reg.active_email.clone() {
                 registry::update_usage(&mut reg, &active, snapshot);
+                // 持久化额度数据到 registry.json
+                let _ = registry::save_registry(codex_home, &mut reg);
             }
         }
 

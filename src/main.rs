@@ -22,7 +22,9 @@ fn main() -> Result<()> {
             interval,
             threshold,
             auto_switch,
-        } => cli::commands::watch::execute(interval, threshold, auto_switch)?,
+            web,
+            port,
+        } => cli::commands::watch::execute(interval, threshold, auto_switch, web, port)?,
         Commands::Add { skip, no_login } => {
             eprintln!(
                 "\x1b[1;31mwarning:\x1b[0m `add` is deprecated; use \x1b[1;32m`cx-switch login{}`\x1b[0m",

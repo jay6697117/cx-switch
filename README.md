@@ -42,7 +42,8 @@ cargo install --git https://github.com/jay6697117/cx-switch.git
 | `cx-switch switch [email]` | 交互式 / 模糊匹配切换账号 |
 | `cx-switch import <path> [--alias name]` | 导入认证文件或目录 |
 | `cx-switch remove` | 交互式多选删除账号 |
-| `cx-switch watch [--interval 60] [--threshold 20] [--auto-switch]` | 额度监控仪表盘 |
+| `cx-switch watch [--interval 60] [--threshold 20] [--auto-switch]` | 额度监控终端 TUI 仪表盘 |
+| `cx-switch watch --web [--port 9394]` | 额度监控 Web 仪表盘（浏览器访问） |
 
 ## 环境要求
 
@@ -67,7 +68,9 @@ cargo run -- switch                            # 交互式切换账号
 cargo run -- switch user1                      # 模糊匹配切换
 cargo run -- import ./auth.json --alias test   # 导入认证文件
 cargo run -- remove                            # 交互式删除账号
-cargo run -- watch --interval 30               # 额度监控仪表盘
+cargo run -- watch --interval 30               # 终端 TUI 仪表盘
+cargo run -- watch --web                       # Web 仪表盘 (localhost:9394)
+cargo run -- watch --web --port 8080           # 自定义端口
 cargo run -- --help                            # 查看帮助
 cargo run -- --version                         # 查看版本
 
@@ -179,4 +182,4 @@ cx-switch/
 
 ## 许可证
 
-MIT
+[Apache-2.0](LICENSE)

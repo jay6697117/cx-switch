@@ -14,7 +14,7 @@ pub fn execute() -> Result<()> {
     }
 
     // 同步活跃账号
-    let synced = registry::sync_active_account_from_auth(&codex_home, &mut reg)?;
+    let _synced = registry::sync_active_account_from_auth(&codex_home, &mut reg)?;
 
     // 从认证文件刷新 plan 信息
     registry::refresh_accounts_from_auth(&codex_home, &mut reg)?;
@@ -27,9 +27,7 @@ pub fn execute() -> Result<()> {
     }
 
     // 保存更新后的注册表
-    if synced {
-        registry::save_registry(&codex_home, &mut reg)?;
-    }
+    registry::save_registry(&codex_home, &mut reg)?;
 
     // 打印增强表格
     table::print_accounts_table(&reg)?;

@@ -37,3 +37,6 @@ terminal_size = "0.4"
 
 # Unicode 字符宽度计算
 unicode-width = "0.2"
+
+# 轻量级 HTTP 服务器（Web 仪表盘）
+tiny_http = "0.12"

@@ -79,8 +79,13 @@ pub enum Commands {
         long_about = "额度监控实时仪表盘\n\n\
             启动实时仪表盘，定时刷新显示所有账号的额度信息。\n\
             支持设置低额度阈值告警，以及额度不足时自动切换到最佳账号。\n\n\
+            模式：\n  \
+            默认启动终端 TUI 仪表盘\n  \
+            --web 启动 Web 仪表盘，浏览器访问\n\n\
             示例：\n  \
-            cx-switch watch                              # 默认 60 秒刷新\n  \
+            cx-switch watch                              # 终端 TUI 仪表盘\n  \
+            cx-switch watch --web                        # Web 仪表盘 (localhost:9394)\n  \
+            cx-switch watch --web --port 8080            # 自定义端口\n  \
             cx-switch watch --interval 30                # 30 秒刷新\n  \
             cx-switch watch --threshold 10 --auto-switch # 低于 10% 自动切换"
     )]
@@ -96,6 +101,14 @@ pub enum Commands {
         /// 额度不足时自动切换到最佳账号
         #[arg(long)]
         auto_switch: bool,
+
+        /// 启用 Web 仪表盘模式（浏览器访问）
+        #[arg(long)]
+        web: bool,
+
+        /// Web 服务器端口
+        #[arg(long, default_value = "9394")]
+        port: u16,
     },
 
     /// 登录并添加当前账号（废弃别名，请使用 login）
