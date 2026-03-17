@@ -1,0 +1,60 @@
+# 依赖目录
+node_modules/
+bower_components/
+
+# 构建输出
+dist/
+build/
+out/
+.output/
+.next/
+.nuxt/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 编辑器和 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 缓存
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+
+# 测试覆盖率
+coverage/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 包管理器锁文件（根据需要取消注释）
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# 项目特定忽略
+codex-auth-origin/
