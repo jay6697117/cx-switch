@@ -1,6 +1,6 @@
 [package]
 name = "cx-switch"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 description = "本地 Codex 多账号切换工具"
 license = "MIT"
