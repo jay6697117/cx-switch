@@ -1,0 +1,56 @@
+name: Actions artifact maintenance
+
+on:
+  push:
+    paths:
+      - ".github/workflows/actions-artifact-maintenance.yml"
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Release"
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    name: Delete temporary Actions artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove artifacts
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const params = { owner, repo, per_page: 100 };
+            const artifacts = context.eventName === 'workflow_run'
+              ? await github.paginate(
+                  github.rest.actions.listWorkflowRunArtifacts,
+                  { ...params, run_id: context.payload.workflow_run.id }
+                )
+              : await github.paginate(
+                  github.rest.actions.listArtifactsForRepo,
+                  params
+                );
+
+            let deleted = 0;
+            let freedBytes = 0;
+            for (const artifact of artifacts) {
+              try {
+                await github.rest.actions.deleteArtifact({
+                  owner,
+                  repo,
+                  artifact_id: artifact.id
+                });
+                deleted += 1;
+                freedBytes += artifact.size_in_bytes || 0;
+                core.info(`Deleted ${artifact.name} (#${artifact.id})`);
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+            }
+
+            core.notice(`Deleted ${deleted} artifact(s), ${freedBytes} byte(s) total.`);
