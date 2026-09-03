@@ -94,6 +94,8 @@ jobs:
         with:
           name: ${{ matrix.archive_name }}
           path: ${{ matrix.archive_name }}
+          if-no-files-found: error
+          retention-days: 1
 
   release:
     name: 发布 Release
